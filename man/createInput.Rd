@@ -4,19 +4,25 @@
 \alias{createInput}
 \title{Create Input for my package}
 \usage{
-createInput(fn)
+createInput(fn, sepSym)
 }
 \arguments{
 \item{fn}{Name of my file to be transformed}
+
+\item{sepSym}{Character or symbol used to separate the taxa}
 }
 \value{
-OUTPUT_DESCRIPTION
+The output is a list containing the input data (sep = "_"), all possible combinations given the input taxa with there input status (quadruple as input available, quadruple not in input = unresolved), total number of taxa in the input data, and resulting comments in the three checks.
 }
 \description{
-FUNCTION_DESCRIPTION
+Take a .txt file with quadruples and to some pre-checks of the data
 }
 \details{
-DETAILS
+\itemize{
+\item Check 1: check if input number of quadruples is too small (must be more than (n-1) choose 4)
+\item Check 2: check if one triple is missing completely (all triples must occure at least once)
+\item Check 3: check if one tuple is too rare
+}
 }
 \examples{
 \dontrun{
