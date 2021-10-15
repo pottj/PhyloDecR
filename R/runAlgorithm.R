@@ -12,8 +12,8 @@
 #' @rdname runAlgorithm
 #' @export
 runAlgorithm<-function(data){
-  data=myResults$data
-  head(data)
+  #data=myResults$data
+  #head(data)
 
   # define solved and unsolved quadruples
   table(data$status)
