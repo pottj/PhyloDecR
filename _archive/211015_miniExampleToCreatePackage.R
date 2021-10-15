@@ -19,20 +19,9 @@ available::available("phylodecr")
 
 # Die Grundstruktur des Pakets wird mit dem Paket 'usethis' erstellt. Der Aufruf
 # dieser Funktion wird das neu erstellte R-Projekt öffnen.
-usethis::create_package("/net/ifs1/san_projekte/projekte/genstat/07_programme/github//GenstatHelpR")
-
+usethis::create_package("C:/Documents and Settings/janne/Documents/R/myPackages/PhyloDecR")
 
 usethis::use_git()
-
-
-usethis::use_github(
-  private = TRUE, # Projekte können privat, also nur für Mitglieder von GenStat, oder komplett öffentlich sein.
-  organisation = "GenStatLeipzig", # das Projekt wird unter der GenStat-Organisation angelegt
-  # auth_token = usethis::github_token(), # outdated auf neueren R
-  protocol = "https"
-  
-) #
-
 
 usethis::use_roxygen_md()
 
@@ -53,20 +42,22 @@ usethis::use_readme_rmd()
 usethis::use_news_md()
 
 ### Tool Entwicklung
+
 usethis::use_pipe()
 devtools::document()
 
 
 # match_hk() funktion
-usethis::use_r("match_hk") # funktion reinkopiert in datei
+usethis::use_r("createInput") # funktion reinkopiert in datei
 
 usethis::use_test(
-  name = "match_hk",
+  name = "createInput",
   open = FALSE)
+
 # dokumentieren ----
 devtools::load_all()
 
-sinew::makeOxygen(match_hk) # davorkopieren, ausfuellen
+sinew::makeOxygen(createInput) # davorkopieren, ausfuellen
 
 devtools::document()
 
@@ -74,4 +65,4 @@ usethis::use_package("data.table", type = "Imports") # und weitere in der funkti
 
 devtools::build()
 
-usethis::use_version("patch") # neue Version: 0.0.1
+usethis::use_version() # neue Version: 0.0.1
