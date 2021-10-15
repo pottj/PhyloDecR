@@ -25,6 +25,16 @@ And the development version from [GitHub](https://github.com/) with:
 devtools::install_github("pottNeJa/PhyloDecR")
 ```
 
+## To do
+
+-   Check MA for the three conditions (number of quadruples, triples &
+    tuples) & add the corresponding lemma or theorem
+-   Test all used taxa sets of the MA
+-   Optimize algorithm output
+-   Full description of all the functions
+-   Test with taxa sets from Mareike
+-   Compare algorithm with Mareikes Mathematica Code
+
 ## Example
 
 This is a basic example which shows you how to solve a common problem:
