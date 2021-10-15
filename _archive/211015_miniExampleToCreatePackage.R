@@ -77,6 +77,7 @@ devtools::document()
 
 usethis::use_version()
 
+devtools::check()
 devtools::build()
 
 

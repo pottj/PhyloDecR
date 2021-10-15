@@ -49,15 +49,21 @@ Okay, we have an example data set with 10 quadruples and n=6 taxa.
 First, we want to check if this input data is okay for the algorithm.
 There are three conditions (proof see master thesis):
 
-1.  Input Quadruple size has to be large enough (>
-    $$ {N\\choose 4}$$
-    )
-2.  All triples must to be in the input data
-3.  All tuples must be sufficiently available
+1.  Input Quadruple size has to be large enough ($n-1 \\choose 4$) –> to
+    check! could also be ($n-1 \\choose 3$), maybe just a typo! See
+    Theorem 5 / Conjecture of my Master Thesis
+2.  All triples must to be in the input data! See Lemma 1 of my Master
+    Thesis
+3.  All tuples must be sufficiently available! –> See Theorem 6 of my
+    Master Thesis
 
 ``` r
 test1<-createInput(fn="_archive/quadruple_check2.txt",sepSym = "_")
 #> [1] "CHECK 1 OK - input is not too small ..."
+#> [1] "CHECK 2 OK - all triples are at least one time there"
+#> [1] "CHECK 3 OK - all tuples are often enough available"
+test2<-createInput(fn="../../2103_FischerPaper/Beispiele/example_8_12_Decisive.txt",sepSym = "_")
+#> [1] "CHECK 1 NOT OK - NOT RESOLVABLE VIA THIS ALGORITHM"
 #> [1] "CHECK 2 OK - all triples are at least one time there"
 #> [1] "CHECK 3 OK - all tuples are often enough available"
 

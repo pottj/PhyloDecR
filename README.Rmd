@@ -57,6 +57,7 @@ First, we want to check if this input data is okay for the algorithm. There are 
 
 ```{r createInput}
 test1<-createInput(fn="_archive/quadruple_check2.txt",sepSym = "_")
+test1<-createInput(fn="../../2103_FischerPaper/Beispiele/example_8_12_Decisive.txt",sepSym = "_")
 
 test1$input
 test1$taxa

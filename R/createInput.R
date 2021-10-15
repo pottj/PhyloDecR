@@ -59,7 +59,7 @@ createInput<-function(fn, sepSym){
   }else{comment1 = "CHECK 1 OK - input is not too small ..."}
   print(comment1)
 
-  # check if one triple is missing completly
+  # check if one triple is missing completely (Lemma 1 of my master thesis)
   all_triple_taxa<-t(combn(n,3))
   all_triple_taxa<-as.data.frame(all_triple_taxa)
   triple_h<-vector(mode="numeric",length=dim(all_triple_taxa)[1])
