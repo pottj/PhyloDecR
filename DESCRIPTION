@@ -1,10 +1,10 @@
 Package: PhyloDecR
-Title: What the Package Does (One Line, Title Case)
+Title: A tool to check sets of taxon sets for phylogenetic decisiveness in R
 Version: 0.0.0.9000
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
+    person("Janne", "Pott", , "janne.pott@uni-leipzig.de", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-5983-5331"))
+Description: This tool is used to test a collection of subsets of taxa for phylogenetic decisiveness. It also tested for certain criteria which have to be met to use this method. 
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
@@ -16,3 +16,5 @@ Imports:
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
+Depends: 
+    R (>= 2.10)

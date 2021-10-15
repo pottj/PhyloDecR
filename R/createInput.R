@@ -1,8 +1,12 @@
 #' @title Create Input for my package
-#' @description FUNCTION_DESCRIPTION
+#' @description Take a .txt file with quadruples and to some pre-checks of the data
 #' @param fn Name of my file to be transformed
-#' @return OUTPUT_DESCRIPTION
-#' @details DETAILS
+#' @param sepSym Character or symbol used to separate the taxa
+#' @return The output is a list containing the input data (sep = "_"), all possible combinations given the input taxa with there input status (quadruple as input available, quadruple not in input = unresolved), total number of taxa in the input data, and resulting comments in the three checks.
+#' @details
+#' * Check 1: check if input number of quadruples is too small (must be more than (n-1) choose 4)
+#' * Check 2: check if one triple is missing completely (all triples must occure at least once)
+#' * Check 3: check if one tuple is too rare
 #' @examples
 #' \dontrun{
 #' if(interactive()){
@@ -11,16 +15,13 @@
 #' }
 #' @rdname createInput
 #' @export
-createInput<-function(fn){
-
-  # To do: das mit dem :: statt library umsetzen!
-  # Input: txt file with quadruples, mit "_" getrennt
-  # fn="../_archive/quadruple_check2.txt"
-  require(data.table)
-  setDTthreads(1)
+createInput<-function(fn, sepSym){
+  # fn = "../../2103_FischerPaper/_archive/quadruple_check2.txt"
+  # sepSym = "_"
+  data.table::setDTthreads(1)
 
   # load data
-  quad_neu<-read.table(fn,header=F,as.is=T,sep="_")
+  quad_neu<-data.table::fread(fn,header=F,sep=sepSym)
   colnames(quad_neu)<-c("taxa1","taxa2","taxa3","taxa4")
   input<-paste(quad_neu$taxa1,quad_neu$taxa2,quad_neu$taxa3,quad_neu$taxa4,sep="_")
   x<-c(quad_neu$taxa1,quad_neu$taxa2,quad_neu$taxa3,quad_neu$taxa4)
@@ -40,7 +41,7 @@ createInput<-function(fn){
   triple4<-paste(all_quadruples$taxa2,all_quadruples$taxa3,all_quadruples$taxa4,sep="_")
 
   data_all<-cbind(quadruple,all_quadruples,triple1,triple2,triple3,triple4)
-  setDT(data_all)
+  data.table::setDT(data_all)
 
   # check if input is too small
   # if  < als 4 aus (n-1), dann npd
@@ -56,6 +57,7 @@ createInput<-function(fn){
   if (input_length < choose(n-1,4)){
     comment1 = "CHECK 1 NOT OK - NOT RESOLVABLE VIA THIS ALGORITHM"
   }else{comment1 = "CHECK 1 OK - input is not too small ..."}
+  print(comment1)
 
   # check if one triple is missing completly
   all_triple_taxa<-t(combn(n,3))
@@ -77,6 +79,7 @@ createInput<-function(fn){
   if(end_check1>0){
     comment2 ="CHECK 2 NOT OK - NOT PHYLOGENETICALLY DECISIVE"
   }else{comment2 = "CHECK 2 OK - all triples are at least one time there"}
+  print(comment2)
 
   # check if one tuple is too rare
   all_tuple_taxa<-t(combn(n,2))
@@ -97,6 +100,7 @@ createInput<-function(fn){
   if (end_check2>0){
     comment3 = "CHECK 3 NOT OK - NOT PHYLOGENETICALLY DECISIVE"
   }else{comment3 = "CHECK 3 OK - all tuples are often enough available"}
+  print(comment3)
 
   # return input as list
   myResults<-list(input = input,

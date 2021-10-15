@@ -2,4 +2,5 @@
 
 export("%>%")
 export(createInput)
+import(data.table)
 importFrom(magrittr,"%>%")

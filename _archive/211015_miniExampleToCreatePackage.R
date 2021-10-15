@@ -47,21 +47,33 @@ usethis::use_pipe()
 devtools::document()
 
 
-# match_hk() funktion
-usethis::use_r("createInput") # funktion reinkopiert in datei
+# add functions
+usethis::use_r("createInput")
+usethis::use_test(name = "createInput",open = FALSE)
 
-usethis::use_test(
-  name = "createInput",
-  open = FALSE)
+usethis::use_r("myAlgorithm")
+usethis::use_test(name = "myAlgorithm",open = FALSE)
+
+usethis::use_r("runAlgorithm")
+usethis::use_test(name = "runAlgorithm",open = FALSE)
 
 # dokumentieren ----
 devtools::load_all()
 
-sinew::makeOxygen(createInput) # davorkopieren, ausfuellen
+sinew::makeOxygen(createInput)
+sinew::makeOxygen(myAlgorithm)
+sinew::makeOxygen(runAlgorithm)
 
-devtools::document()
 
 usethis::use_package("data.table", type = "Imports") # und weitere in der funktion verwendete pakete
+
+use_data_table()
+exampleData<-read.table("../../2103_FischerPaper/_archive/quadruple_check2.txt")
+
+use_data(exampleData,overwrite = TRUE)
+sinew::makeOxygen(exampleData)
+
+devtools::document()
 
 devtools::build()
 
