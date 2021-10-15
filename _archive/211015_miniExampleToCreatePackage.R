@@ -75,6 +75,8 @@ sinew::makeOxygen(exampleData)
 
 devtools::document()
 
+usethis::use_version()
+
 devtools::build()
 
-usethis::use_version() # neue Version: 0.0.1
+
