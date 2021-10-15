@@ -53,9 +53,9 @@ There are three conditions (proof see master thesis):
     check! could also be ($n-1 \\choose 3$), maybe just a typo! See
     Theorem 5 / Conjecture of my Master Thesis
 2.  All triples must to be in the input data! See Lemma 1 of my Master
-    Thesis
+    Thesis.
 3.  All tuples must be sufficiently available! –> See Theorem 6 of my
-    Master Thesis
+    Master Thesis.
 
 ``` r
 test1<-createInput(fn="_archive/quadruple_check2.txt",sepSym = "_")
