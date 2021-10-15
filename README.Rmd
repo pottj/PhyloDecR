@@ -39,8 +39,35 @@ devtools::install_github("pottNeJa/PhyloDecR")
 This is a basic example which shows you how to solve a common problem:
 
 ```{r example}
-#library(PhyloDecR)
+library(PhyloDecR)
+
 ## basic example code
+data(exampleData)
+head(exampleData)
+
 ```
 
-Will be done later, when all functions are included :)
+Okay, we have an example data set with 10 quadruples and n=6 taxa. 
+
+First, we want to check if this input data is okay for the algorithm. There are three conditions (proof see master thesis):
+
+1) Input Quadruple size has to be large enough (> $$ {N\choose 4}$$)
+2) All triples must to be in the input data
+3) All tuples must be sufficiently available
+
+```{r createInput}
+test1<-createInput(fn="_archive/quadruple_check2.txt",sepSym = "_")
+
+test1$input
+test1$taxa
+test1$comments
+
+knitr::kable(test1$data,caption = "All possible quadruples with the given n and their status (given as input or to be resolved)")
+```
+
+Okay, my example data passes all initial tests. This means, that I can run the algorithm created by Mareike Fischer. 
+
+```{r algorithm, eval=F}
+test2<-runAlgorithm(data = test1$data)
+```
+
