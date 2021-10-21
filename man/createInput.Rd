@@ -2,27 +2,30 @@
 % Please edit documentation in R/createInput.R
 \name{createInput}
 \alias{createInput}
-\title{Create Input for my package}
+\title{Create Input for PhyloDecR Package}
 \usage{
 createInput(fn, sepSym)
 }
 \arguments{
-\item{fn}{Name of my file to be transformed}
+\item{fn}{Path to .txt file containing the taxon list. Taxa within can be numbers or characters. If the taxon lists have different length, missing entries will be filled with NA (if input is numeric) or "" (if input are characters).}
 
-\item{sepSym}{Character or symbol used to separate the taxa}
+\item{sepSym}{Character or symbol used to separate the taxa, e.g. "_" or ","}
 }
 \value{
-The output is a list containing the input data (sep = "_"), all possible combinations given the input taxa with there input status (quadruple as input available, quadruple not in input = unresolved), total number of taxa in the input data, and resulting comments in the three checks.
+The output is a list containing the 5 data sets:
+\itemize{
+\item input_raw: data as given in the .txt file.
+\item input_quadruples: interim result, data transformed into quadruples only
+\item input_ordered: data transformed to quadruples, and taxa ID forced to numeric and ordered hierarchically
+\item data: all possible quadruples given the taxon set with status information (quadruple as input available, quadruple not in input = unresolved). In addition, all four triples possible by each quadruple are listed
+\item taxa: data table used for transformation, taxaID denotes the original input taxaID (as in input_raw & input_quadruples), NR is the ordered number of this taxon (as in input_ordered & data)
+}
 }
 \description{
-Take a .txt file with quadruples and to some pre-checks of the data
+The function takes a .txt file with taxon lists (quadruples or more) and transforms them to target format (only quadruples, numbered, ordered)
 }
 \details{
-\itemize{
-\item Check 1: check if input number of quadruples is too small (must be more than (n-1) choose 4)
-\item Check 2: check if one triple is missing completely (all triples must occure at least once)
-\item Check 3: check if one tuple is too rare
-}
+DETAILS
 }
 \examples{
 \dontrun{
@@ -30,4 +33,8 @@ if(interactive()){
  #EXAMPLE1
  }
 }
+}
+\seealso{
+\code{\link[data.table]{setDTthreads}},\code{\link[data.table]{fread}},\code{\link[data.table]{data.table-package}},\code{\link[data.table]{setorder}},\code{\link[data.table]{as.data.table}},\code{\link[data.table]{rbindlist}},\code{\link[data.table]{copy}}
+\code{\link[foreach]{foreach}}
 }

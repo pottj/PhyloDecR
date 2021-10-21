@@ -1,111 +1,118 @@
-#' @title Create Input for my package
-#' @description Take a .txt file with quadruples and to some pre-checks of the data
-#' @param fn Name of my file to be transformed
-#' @param sepSym Character or symbol used to separate the taxa
-#' @return The output is a list containing the input data (sep = "_"), all possible combinations given the input taxa with there input status (quadruple as input available, quadruple not in input = unresolved), total number of taxa in the input data, and resulting comments in the three checks.
-#' @details
-#' * Check 1: check if input number of quadruples is too small (must be more than (n-1) choose 4)
-#' * Check 2: check if one triple is missing completely (all triples must occure at least once)
-#' * Check 3: check if one tuple is too rare
+#' @title Create Input for PhyloDecR Package
+#' @description The function takes a .txt file with taxon lists (quadruples or more) and transforms them to target format (only quadruples, numbered, ordered)
+#' @param fn Path to .txt file containing the taxon list. Taxa within can be numbers or characters. If the taxon lists have different length, missing entries will be filled with NA (if input is numeric) or "" (if input are characters).
+#' @param sepSym Character or symbol used to separate the taxa, e.g. "_" or ","
+#' @return The output is a list containing the 5 data sets:
+#'
+#' * input_raw: data as given in the .txt file.
+#' * input_quadruples: interim result, data transformed into quadruples only
+#' * input_ordered: data transformed to quadruples, and taxa ID forced to numeric and ordered hierarchically
+#' * data: all possible quadruples given the taxon set with status information (quadruple as input available, quadruple not in input = unresolved). In addition, all four triples possible by each quadruple are listed
+#' * taxa: data table used for transformation, taxaID denotes the original input taxaID (as in input_raw & input_quadruples), NR is the ordered number of this taxon (as in input_ordered & data)
+#'
+#' @details DETAILS
 #' @examples
 #' \dontrun{
 #' if(interactive()){
 #'  #EXAMPLE1
 #'  }
 #' }
+#' @seealso
+#'  \code{\link[data.table]{setDTthreads}},\code{\link[data.table]{fread}},\code{\link[data.table]{data.table-package}},\code{\link[data.table]{setorder}},\code{\link[data.table]{as.data.table}},\code{\link[data.table]{rbindlist}},\code{\link[data.table]{copy}}
+#'  \code{\link[foreach]{foreach}}
 #' @rdname createInput
 #' @export
+#' @importFrom data.table setDTthreads fread data.table setorder as.data.table rbindlist copy
+#' @importFrom foreach foreach
 createInput<-function(fn, sepSym){
-  # fn = "../../2103_FischerPaper/_archive/quadruple_check2.txt"
-  # sepSym = "_"
+  # fn = "../../2103_FischerPaper/Beispiele/example_Fischer_1.txt"
+  # sepSym = ","
+
+  # Step 0: load data
   data.table::setDTthreads(1)
+  quad_neu<-data.table::fread(fn,sep=sepSym, fill=T,header=F)
 
-  # load data
-  quad_neu<-data.table::fread(fn,header=F,sep=sepSym)
-  colnames(quad_neu)<-c("taxa1","taxa2","taxa3","taxa4")
-  input<-paste(quad_neu$taxa1,quad_neu$taxa2,quad_neu$taxa3,quad_neu$taxa4,sep="_")
-  x<-c(quad_neu$taxa1,quad_neu$taxa2,quad_neu$taxa3,quad_neu$taxa4)
-  y<-unique(x)
-  n<-length(y)
+  # Step 1: count columns & rows
+  nCol = dim(quad_neu)[2]
+  nRow = dim(quad_neu)[1]
+  UniqueTaxa = unique(unlist(quad_neu))
+  UniqueTaxa = UniqueTaxa[!is.na(UniqueTaxa)]
+  UniqueTaxa = UniqueTaxa[UniqueTaxa != ""]
+  myTrafoMatrix = data.table::data.table(taxaID = UniqueTaxa)
+  names(myTrafoMatrix) = "taxaID"
+  data.table::setorder(myTrafoMatrix,taxaID)
+  myTrafoMatrix[,NR:=1:dim(myTrafoMatrix)[1]]
 
-  # get all possible quadruples given the number of input taxa
+  stopifnot(nCol>=4)
+  message("Input contains ",nRow," trees with ",dim(myTrafoMatrix)[1]," different taxa. The biggest tree has ",nCol," taxa.")
+
+  # Step 2: get quadrupel format
+  # if there are more than 4 taxa, I can assume that all
+  # possible quadruples are known.
+  # All those quadruples are hence added to the input data
+
+  myData = foreach::foreach(j = 1:nRow)%do%{
+    # j=1
+    myRow = quad_neu[j,]
+
+    UniqueTaxa2= unique(unlist(myRow))
+    UniqueTaxa2 = UniqueTaxa2[!is.na(UniqueTaxa2)]
+    UniqueTaxa2 = UniqueTaxa2[UniqueTaxa2 != ""]
+    myTrafoMatrix2 = data.table::data.table(taxaID = UniqueTaxa2)
+    names(myTrafoMatrix2) = "taxaID"
+    data.table::setorder(myTrafoMatrix2,taxaID)
+    myTrafoMatrix2[,NR:=1:dim(myTrafoMatrix2)[1]]
+
+    all_quadruples<-t(combn(dim(myTrafoMatrix2)[1],4))
+    all_quadruples<-data.table::as.data.table(all_quadruples)
+    names(all_quadruples) = c("taxa1","taxa2","taxa3","taxa4")
+
+    all_quadruples2 = all_quadruples
+
+    for(k in dim(myTrafoMatrix2)[1]:1){
+      # k=4
+      filt = all_quadruples2 == myTrafoMatrix2[k,NR]
+      all_quadruples2[filt] = myTrafoMatrix2[k,taxaID]
+    }
+    all_quadruples2
+  }
+  myData = data.table::rbindlist(myData)
+
+  # Step 3: force numeric & ordered taxa
+  myData2 = myData
+  for(k in dim(myTrafoMatrix)[1]:1){
+    # k=4
+    filt = myData2 == myTrafoMatrix[k,taxaID]
+    myData2[filt] = myTrafoMatrix[k,NR]
+  }
+  myData2
+  myData2[,quadruple := paste(taxa1,taxa2,taxa3,taxa4,sep="_")]
+
+  # Step 4: get all possible quadruples given the number of input taxa
+  n = dim(myTrafoMatrix)[1]
   all_quadruples<-t(combn(n,4))
   colnames(all_quadruples)<-c("taxa1","taxa2","taxa3","taxa4")
   all_quadruples<-as.data.frame(all_quadruples)
 
-  # get overview table with all taxa, triple and quadruples
-  quadruple<-paste(all_quadruples$taxa1,all_quadruples$taxa2,all_quadruples$taxa3,all_quadruples$taxa4,sep="_")
-  triple1<-paste(all_quadruples$taxa1,all_quadruples$taxa2,all_quadruples$taxa3,sep="_")
-  triple2<-paste(all_quadruples$taxa1,all_quadruples$taxa2,all_quadruples$taxa4,sep="_")
-  triple3<-paste(all_quadruples$taxa1,all_quadruples$taxa3,all_quadruples$taxa4,sep="_")
-  triple4<-paste(all_quadruples$taxa2,all_quadruples$taxa3,all_quadruples$taxa4,sep="_")
+  # Step 5: get overview table with all taxa, triple and quadruples
+  all_quadruples[,quadruple := paste(taxa1,taxa2,taxa3,taxa4,sep="_")]
+  all_quadruples[,triple1 := paste(taxa1,taxa2,taxa3,sep="_")]
+  all_quadruples[,triple2 := paste(taxa1,taxa2,taxa4,sep="_")]
+  all_quadruples[,triple3 := paste(taxa1,taxa3,taxa4,sep="_")]
+  all_quadruples[,triple4 := paste(taxa2,taxa3,taxa4,sep="_")]
 
-  data_all<-cbind(quadruple,all_quadruples,triple1,triple2,triple3,triple4)
-  data.table::setDT(data_all)
+  data_all<-data.table::copy(all_quadruples)
 
-  # check if input is too small
-  # if  < als 4 aus (n-1), dann npd
-  vgl0<-is.element(data_all$quadruple,input)
-  table(vgl0)
-  cross_quadruples<-data_all[!vgl0,]
-  green_quadruples<-data_all[vgl0,]
-
-  data_all[vgl0,status:="input"]
-  data_all[!vgl0,status:="unresolved"]
-
-  input_length<-dim(green_quadruples)[1]
-  if (input_length < choose(n-1,4)){
-    comment1 = "CHECK 1 NOT OK - NOT RESOLVABLE VIA THIS ALGORITHM"
-  }else{comment1 = "CHECK 1 OK - input is not too small ..."}
-  print(comment1)
-
-  # check if one triple is missing completely (Lemma 1 of my master thesis)
-  all_triple_taxa<-t(combn(n,3))
-  all_triple_taxa<-as.data.frame(all_triple_taxa)
-  triple_h<-vector(mode="numeric",length=dim(all_triple_taxa)[1])
-  for (i in 1:dim(all_triple_taxa)[1]){
-    tab1<-all_triple_taxa[i,1] == green_quadruples[,c(2,3,4,5)] |
-      all_triple_taxa[i,2] == green_quadruples[,c(2,3,4,5)] |
-      all_triple_taxa[i,3] == green_quadruples[,c(2,3,4,5)]
-    dim(tab1)
-    tab2<-vector(mode="numeric",length=dim(tab1)[1])
-    for(j in 1:dim(tab1)[1]){
-      tab2[j]<-sum(tab1[j,]==TRUE)
-    }
-    triple_h[i]<-sum(tab2==3)
-  }
-  check1<-triple_h==0
-  end_check1<-sum(check1==TRUE)
-  if(end_check1>0){
-    comment2 ="CHECK 2 NOT OK - NOT PHYLOGENETICALLY DECISIVE"
-  }else{comment2 = "CHECK 2 OK - all triples are at least one time there"}
-  print(comment2)
-
-  # check if one tuple is too rare
-  all_tuple_taxa<-t(combn(n,2))
-  all_tuple_taxa<-as.data.frame(all_tuple_taxa)
-  tuple_h<-vector(mode="numeric",length=dim(all_tuple_taxa)[1])
-  for (i in 1:dim(all_tuple_taxa)[1]){
-    tab1<-all_tuple_taxa[i,1] == green_quadruples[,c(2,3,4,5)] |
-      all_tuple_taxa[i,2] == green_quadruples[,c(2,3,4,5)]
-    dim(tab1)
-    tab2<-vector(mode="numeric",length=dim(tab1)[1])
-    for(j in 1:dim(tab1)[1]){
-      tab2[j]<-sum(tab1[j,]==TRUE)
-    }
-    tuple_h[i]<-sum(tab2==2)
-  }
-  check2<-tuple_h<=(n-4)
-  end_check2<-sum(check2==TRUE)
-  if (end_check2>0){
-    comment3 = "CHECK 3 NOT OK - NOT PHYLOGENETICALLY DECISIVE"
-  }else{comment3 = "CHECK 3 OK - all tuples are often enough available"}
-  print(comment3)
+  filt = is.element(data_all$quadruple,myData2$quadruple)
+  table(filt)
+  data_all[filt,status:="input"]
+  data_all[!filt,status:="unresolved"]
 
   # return input as list
-  myResults<-list(input = input,
+  myResults<-list(input_raw = quad_neu,
+                  input_quadruples = myData,
+                  input_ordered = myData2,
                   data = data_all,
-                  taxa = y,
-                  comments= c(comment1, comment2, comment3))
+                  taxa = myTrafoMatrix)
   return(myResults)
 }
