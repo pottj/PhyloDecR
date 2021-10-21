@@ -56,7 +56,25 @@ head(exampleData)
 
 ```
 
-Okay, we have an example data set with 10 quadruples and n=6 taxa. 
+### Step 1: Create Input
+
+```{r step1}
+test1 = createInput(fn="../../2103_FischerPaper/Beispiele/example_Fischer_1.txt",sepSym = ",")
+test2 = createInput(fn="../../2103_FischerPaper/Beispiele/example_Fischer_2.txt",sepSym = ",")
+test3 = createInput(fn="../../2103_FischerPaper/Beispiele/example_8_12_Decisive.txt", sepSym = "_")
+
+test1$input_raw
+test1$input_quadruples
+test1$input_ordered
+test1$taxa
+
+head(test1$data)
+# knitr::kable(test1$data,caption = "All possible quadruples with the given taxa and their status (given as input or to be resolved)")
+
+```
+
+### Step 2: Do some initial tests
+The second input, *test2*, contains data for 11 taxa lists of 6 different taxa. 
 
 First, we want to check if this input data is okay for the algorithm. There are three conditions (proof see master thesis):
 
@@ -64,20 +82,18 @@ First, we want to check if this input data is okay for the algorithm. There are 
 2) All triples must to be in the input data! See Lemma 1 of my Master Thesis.
 3) All tuples must be sufficiently available! --> See Theorem 6 of my Master Thesis.
 
-```{r createInput}
-test1<-createInput(fn="_archive/quadruple_check2.txt",sepSym = "_")
-test2<-createInput(fn="../../2103_FischerPaper/Beispiele/example_8_12_Decisive.txt",sepSym = "_")
+```{r checkInput}
+test1_checks = initialCheck(data = test1$data)
+test2_checks = initialCheck(data = test2$data)
+test3_checks = initialCheck(data = test3$data)
 
-test1$input
-test1$taxa
-test1$comments
-
-knitr::kable(test1$data,caption = "All possible quadruples with the given n and their status (given as input or to be resolved)")
 ```
 
 Okay, my example data passes all initial tests. This means, that I can run the algorithm created by Mareike Fischer. 
 
-```{r algorithm, eval=F}
-test2<-runAlgorithm(data = test1$data)
+```{r algorithm}
+test1_alg<-runAlgorithm(data = test1$data)
+test2_alg<-runAlgorithm(data = test2$data)
+test3_alg<-runAlgorithm(data = test3$data)
 ```
 

@@ -10,7 +10,14 @@
 #' * data: all possible quadruples given the taxon set with status information (quadruple as input available, quadruple not in input = unresolved). In addition, all four triples possible by each quadruple are listed
 #' * taxa: data table used for transformation, taxaID denotes the original input taxaID (as in input_raw & input_quadruples), NR is the ordered number of this taxon (as in input_ordered & data)
 #'
-#' @details DETAILS
+#' @details
+#'
+#' 1) Get number of taxon lists (trees), unique taxa count, and transformation matrix
+#' 2) Split larger list into quadruples
+#' 3) Force numeric & ordered taxa (usind transformation matrix)
+#' 4) Get all possible quadruples given the number of unique input taxa
+#' 5) Get status information & return list
+#'
 #' @examples
 #' \dontrun{
 #' if(interactive()){
@@ -24,6 +31,8 @@
 #' @export
 #' @importFrom data.table setDTthreads fread data.table setorder as.data.table rbindlist copy
 #' @importFrom foreach foreach
+#' @importFrom foreach "%do%"
+#' @importFrom data.table ":="
 createInput<-function(fn, sepSym){
   # fn = "../../2103_FischerPaper/Beispiele/example_Fischer_1.txt"
   # sepSym = ","
@@ -91,8 +100,8 @@ createInput<-function(fn, sepSym){
   # Step 4: get all possible quadruples given the number of input taxa
   n = dim(myTrafoMatrix)[1]
   all_quadruples<-t(combn(n,4))
-  colnames(all_quadruples)<-c("taxa1","taxa2","taxa3","taxa4")
-  all_quadruples<-as.data.frame(all_quadruples)
+  all_quadruples<-data.table::as.data.table(all_quadruples)
+  names(all_quadruples) = c("taxa1","taxa2","taxa3","taxa4")
 
   # Step 5: get overview table with all taxa, triple and quadruples
   all_quadruples[,quadruple := paste(taxa1,taxa2,taxa3,taxa4,sep="_")]

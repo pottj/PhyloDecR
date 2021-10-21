@@ -25,7 +25,13 @@ The output is a list containing the 5 data sets:
 The function takes a .txt file with taxon lists (quadruples or more) and transforms them to target format (only quadruples, numbered, ordered)
 }
 \details{
-DETAILS
+\enumerate{
+\item Get number of taxon lists (trees), unique taxa count, and transformation matrix
+\item Split larger list into quadruples
+\item Force numeric & ordered taxa (usind transformation matrix)
+\item Get all possible quadruples given the number of unique input taxa
+\item Get status information & return list
+}
 }
 \examples{
 \dontrun{
