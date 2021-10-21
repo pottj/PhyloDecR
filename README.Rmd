@@ -91,7 +91,7 @@ test3_checks = initialCheck(data = test3$data)
 
 Okay, my example data passes all initial tests. This means, that I can run the algorithm created by Mareike Fischer. 
 
-```{r algorithm}
+```{r algorithm, warning=F}
 test1_alg<-runAlgorithm(data = test1$data)
 test2_alg<-runAlgorithm(data = test2$data)
 test3_alg<-runAlgorithm(data = test3$data)
