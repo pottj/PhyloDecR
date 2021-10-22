@@ -44,7 +44,7 @@ runAlgorithm<-function(data, verbose = F){
   data2[,round := 0]
   data2[,fixingTaxa := 0]
   repeat{
-    data2=myAlgorithm(data2,verbose = F)
+    data2=myAlgorithm(data2, verbose = verbose)
     index=index+1
     data2
 
@@ -59,8 +59,7 @@ runAlgorithm<-function(data, verbose = F){
   # Step 3: return data and result
   if (sum(data2$status == "unresolved") ==0){
     print("PHYLOGENETICALLY DECISIVE")
-    }
-  if (index >= dim(cross_quadruples)[1]){
+  }else{
     print("NOT RESOLVABLE VIA THIS ALGORITHM, MAYBE A SECOND FIXING TAXON IS NEEDED")
     }
 

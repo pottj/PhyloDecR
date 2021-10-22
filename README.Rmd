@@ -36,12 +36,8 @@ devtools::install_github("pottNeJa/PhyloDecR")
 ```
 ## To do
 
-* Check MA for the three conditions (number of quadruples, triples & tuples) &  add the corresponding lemma or theorem
-* Test all used taxa sets of the MA
-* Optimize algorithm output
-* Full description of all the functions
-* Test with taxa sets from Mareike
-* Compare algorithm with Mareikes Mathematica Code
+* Discuss with Mareike: is my version of her algorithm correct? 
+* Check master thesis for further conditions
 
 ## Example
 
@@ -50,27 +46,37 @@ This is a basic example which shows you how to solve a common problem:
 ```{r example}
 library(PhyloDecR)
 
-## basic example code
-data(exampleData)
-head(exampleData)
+## basic example data sets
+fn1 = system.file("extdata", 
+                  "example_1_notDecisive.txt", 
+                  package = "PhyloDecR")
+fn2 = system.file("extdata", 
+                  "example_2_Decisive.txt", 
+                  package = "PhyloDecR")
+fn3 = system.file("extdata", 
+                  "example_3_Decisive.txt", 
+                  package = "PhyloDecR")
+
+
 
 ```
 
 ### Step 1: Create Input
 
 ```{r step1}
-test1 = createInput(fn="../../2103_FischerPaper/Beispiele/example_Fischer_1.txt",sepSym = ",")
-test2 = createInput(fn="../../2103_FischerPaper/Beispiele/example_Fischer_2.txt",sepSym = ",")
-test3 = createInput(fn="../../2103_FischerPaper/Beispiele/example_8_12_Decisive.txt", sepSym = "_")
+test1 = createInput(fn=fn1,sepSym = ",")
+test2 = createInput(fn=fn2,sepSym = ",")
+test3 = createInput(fn=fn3, sepSym = "_")
 
-test1$input_raw
-test1$input_quadruples
-test1$input_ordered
-test1$taxa
+knitr::kable(test1$input_raw,caption = "Input from text file. Does not need to be numeric, does not need to be quadruples")
+
+knitr::kable(test1$input_quadruples,caption = "Input quadruples. If in input was a tree with more than four taxa, all quadruples in that tree are added here")
+
+knitr::kable(test1$input_ordered,caption = "Input quadruples, all numeric from 1 to n (different taxa in input).")
+
+knitr::kable(test1$taxa, caption = "Transfomation matrix")
 
 head(test1$data)
-# knitr::kable(test1$data,caption = "All possible quadruples with the given taxa and their status (given as input or to be resolved)")
-
 ```
 
 ### Step 2: Do some initial tests
@@ -78,9 +84,9 @@ The second input, *test2*, contains data for 11 taxa lists of 6 different taxa.
 
 First, we want to check if this input data is okay for the algorithm. There are three conditions (proof see master thesis):
 
-1) Input Quadruple size has to be large enough ($n-1 \choose 4$) --> to check! could also be ($n-1 \choose 3$), maybe just a typo! See Theorem 5 / Conjecture of my Master Thesis
-2) All triples must to be in the input data! See Lemma 1 of my Master Thesis.
-3) All tuples must be sufficiently available! --> See Theorem 6 of my Master Thesis.
+1) Input Quadruple size has to be large enough ($n-1 \choose 3$)to make this algorithm work. See Theorem 5 / Conjecture of master thesis
+2) All triples must to be in the input data! See Lemma 1 of master thesis.
+3) All tuples must be sufficiently available! --> See Theorem 6 of master thesis.
 
 ```{r checkInput}
 test1_checks = initialCheck(data = test1$data)
@@ -89,11 +95,19 @@ test3_checks = initialCheck(data = test3$data)
 
 ```
 
-Okay, my example data passes all initial tests. This means, that I can run the algorithm created by Mareike Fischer. 
+Not all data pass the test. 
+
+* Data 1: low quadruple number & not all tuples sufficiently available --> Algorithm will not be able to give a positive result
+* Data 2: all initial checks passed --> algorithm should be able to give true positive or true negative result
+* Data 3: low quadruple number --> algorithm will not be able to give a positive result
 
 ```{r algorithm, warning=F}
-test1_alg<-runAlgorithm(data = test1$data)
-test2_alg<-runAlgorithm(data = test2$data)
-test3_alg<-runAlgorithm(data = test3$data)
+test1_alg<-runAlgorithm(data = test1$data,verbose = T)
+test2_alg<-runAlgorithm(data = test2$data,verbose = T)
+test3_alg<-runAlgorithm(data = test3$data,verbose = T)
 ```
+
+The algorithm cannot give false positives! If there are fixing taxa to resolve all quadruples, the set is phylogenetic decisive (proof of proposition 7 of Fischer Preprint).
+
+The algorithm can give false negatives! For example, the third example set is phylogenetic decisive, but has not enough quadruples in the set to enable the algorithm to find fixing taxa (see master thesis, theorem 2).
 

@@ -24,6 +24,7 @@ myAlgorithm<-function(data,verbose = F){
                     "status","round","fixingTaxa")
   stopifnot(names(data) %in% expectedNames)
   stopifnot(class(data$taxa1) == "integer")
+  round_old = max(data$round)
 
   # Step 1: split quadruples in resolved and unresolved ones
   data_solved = data[status != "unresolved"]
@@ -47,21 +48,30 @@ myAlgorithm<-function(data,verbose = F){
     filt<-vgl1 | vgl2 | vgl3 | vgl4
     data_pos<-data_solved[filt,]
 
-    # Step 2.4: search for possible fixing taxa
-    # using only taxa in data_pos, which are not in the unresolved quadruple
-    # Count the most common taxa only!
-    taxa_pos = unlist(data_pos[,c("taxa1","taxa2","taxa3","taxa4")])
-    taxa_unresolved = unique(unlist(data_unresolved[i,c("taxa1","taxa2","taxa3","taxa4")]))
-    taxa_pos2 = taxa_pos[!is.element(taxa_pos,taxa_unresolved)]
-    tab = data.table::data.table(taxa_ID = taxa_pos2)
-    tab2 = tab[,.N, by=taxa_ID]
-    tab3 = tab2[N == max(N),]
-    if(dim(tab3)[1]>1){tab3 = tab3[1,]}
+    if(dim(data_pos)[1]==0){
+      # Step 2.5: return best taxa, taxa count & unresolved quadruple
+      res = data.table::data.table(unres_quad = data_unresolved[i,quadruple],
+                                   best_fixTaxa = 0,
+                                   count = 0)
+    }else{
+      # Step 2.4: search for possible fixing taxa
+      # using only taxa in data_pos, which are not in the unresolved quadruple
+      # Count the most common taxa only!
+      taxa_pos = unlist(data_pos[,c("taxa1","taxa2","taxa3","taxa4")])
+      taxa_unresolved = unique(unlist(data_unresolved[i,c("taxa1","taxa2","taxa3","taxa4")]))
+      taxa_pos2 = taxa_pos[!is.element(taxa_pos,taxa_unresolved)]
+      tab = data.table::data.table(taxa_ID = taxa_pos2)
+      tab2 = tab[,.N, by=taxa_ID]
+      tab3 = tab2[N == max(N),]
+      if(dim(tab3)[1]>1){tab3 = tab3[1,]}
 
-    # Step 2.5: return best taxa, taxa count & unresolved quadruple
-    res = data.table::data.table(unres_quad = data_unresolved[i,quadruple],
-                                 best_fixTaxa = tab3$taxa_ID,
-                                 count = tab3$N)
+      # Step 2.5: return best taxa, taxa count & unresolved quadruple
+      res = data.table::data.table(unres_quad = data_unresolved[i,quadruple],
+                                   best_fixTaxa = tab3$taxa_ID,
+                                   count = tab3$N)
+
+    }
+
     res
   }
   myTab = data.table::rbindlist(myTab)
@@ -72,7 +82,7 @@ myAlgorithm<-function(data,verbose = F){
   filt = myTab$count>=4
   data_unresolved[filt,status := "resolved"]
   data_unresolved[filt,fixingTaxa := myTab[filt,best_fixTaxa]]
-  data_unresolved[,round := round + 1]
+  data_unresolved[filt,round := round + 1]
   data_unresolved
 
   # Step 4: return data
@@ -83,7 +93,9 @@ myAlgorithm<-function(data,verbose = F){
   if (length(n_unresolved_new)==0){n_unresolved_new = 0}
   n_unresolved_old = dim(data_unresolved)[1]
   n_diff = n_unresolved_old - n_unresolved_new
+  round_new = max(data3$round)
+  if(round_new == round_old){round_new = round_new + 1}
 
-  if(verbose == T){message("In this round, ",n_diff," quadruples could be resolved ...")}
+  if(verbose == T){message("In round #",round_new,", ",n_diff," quadruples could be resolved ...")}
   return(data3)
 }
