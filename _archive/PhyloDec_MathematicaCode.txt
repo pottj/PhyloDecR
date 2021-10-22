@@ -1,0 +1,98 @@
+# PhyloDec: A tool to check sets of taxon sets for phylogenetic decisiveness.
+# Downloaded from https://math-inf.uni-greifswald.de/institut/ueber-uns/mitarbeitende/fischer/ on 15.10.2021
+# To do: check if it does the same as my R functions (or at least similar)
+
+
+
+(* ::Package:: *)
+
+(*Input: List of taxon sets which needs to be checked for phylogenetic decisiveness*)
+
+(*Users are asked to either enter a list (see example lists below) or call a file*)
+
+If[Evaluate[InputString["Do you want to manually enter a list of taxon lists? Type yes or no."]]=="yes",
+listoftaxonlists=Evaluate[Input["Enter your list of taxon lists now. The start and end of each list (including the outermost list) should be marked by a curly bracket { or } and individual lists are separated by a comma. For example: {{1,2,3,4,5,6},{1,2,7,8},{4,5,7,9}}. NOTE: If your taxon names are not integer numbers, you have to put them in quotes. For example: {{\"human\",\"chimp\",\"gorilla\"},{\"human\",\"orang-utan\",\"baboon\"}}"]],filename=Evaluate[InputString["Enter the name of the file which contains your list taxon lists now. The file has to be a .txt file and the contents should be as follows:  The start and end of each list (including the outermost list) should be marked by a curly bracket { or } and individual lists are separated by a comma. For example: {{1,2,3,4,5,6},{1,2,7,8},{4,5,7,9}}. NOTE: If your taxon names are not integer numbers, you have to put them in quotes. For example: {{\"human\",\"chimp\",\"gorilla\"},{\"human\",\"orang-utan\",\"baboon\"}}. If your file is in a different folder, do not forget to type the entire path. E.g. C:/Users/me/filename.txt" ]];listoftaxonlists=ToExpression[Import[filename,"List"]][[1]];
+
+];
+
+
+
+(*Example lists of taxon lists*)
+
+(*listoftaxonlists={{1,2,3,4,5,6},{1,2,7,8},{4,5,7,9}};*)
+(*listoftaxonlists={{1,2,3,5},{1,3,5,6},{2,3,5,6},{1,2,3,6},{2,3,4,6},{1,3,4,6},{1,2,4,6},{1,2,5,6},{1,4,5,6},{1,2,4,5},{2,3,4,5}};*)
+(*listoftaxonlists={{1,2,3,4},{1,2,4,5},{1,3,4,5},{2,3,4,5}};*)
+(*listoftaxonlists={{1,2,3},{1,2,4},{1,3,4},{2,3,4}};*)
+(*listoftaxonlists={{1,2,3},{1,2,4},{1,3,4},{2,3,4}};*)
+(*listoftaxonlists={{1,2,3,5},{1,3,5,6},{2,3,5,6},{1,2,3,6},{2,3,4,6},{1,3,4,6},{1,2,4,6},{1,2,5,6},{1,4,5,6},{1,2,4,5}};*)
+
+
+
+(*Now all taxa contained in any of the input sets are listed*)
+listoftaxa={};
+For[i=1,i<=Length[listoftaxonlists],i++,listoftaxa=Union[listoftaxonlists[[i]],listoftaxa];]
+
+(*ROOTED CASE*)
+(* Now all triples displayed by any of the input sets are listed*)
+listofdisplayedtriples={};
+For[i=1,i<=Length[listoftaxonlists],i++, listofdisplayedtriples=Union[listofdisplayedtriples,Subsets[Sort[listoftaxonlists[[i]]],{3}]];];
+
+
+(*Now all possible triples are generated*)
+possibletriples=Subsets[Sort[listoftaxa],{3}];goon=1;
+
+
+If[Length[possibletriples]!=Length[listofdisplayedtriples],goon=0];
+
+(*UNROOTED CASE*)
+(*Now all possible quadruples are generated*)
+If[goon==1,possiblequadruples=Subsets[listoftaxa,{4}];Print[possiblequadruples];
+
+(*Now all quadruples displayed by any of the input sets are listed and colored green and added to the set of newly colored green nodes*)
+listofgreenquadruples={};
+For[i=1,i<=Length[listoftaxonlists],i++, If[Length[listoftaxonlists[[i]]]>3,listofgreenquadruples=Union[listofgreenquadruples,Subsets[listoftaxonlists[[i]],{4}]];]];setofNEWgreennodes=listofgreenquadruples; counter=Length[listofgreenquadruples];
+
+
+While[setofNEWgreennodes!={} &&counter<Length[possiblequadruples],
+
+(*Pick first element from the list of newly colored green nodes and call its elements A, B, C and D*)
+elementA=setofNEWgreennodes[[1]][[1]];
+elementB=setofNEWgreennodes[[1]][[2]];
+elementC=setofNEWgreennodes[[1]][[3]];
+elementD=setofNEWgreennodes[[1]][[4]];
+
+
+(*Calculate list of all taxa without a,b,c and d*)
+listoftaxaWithoutABCD=Delete[listoftaxa,{Flatten[Position[listoftaxa,elementA]],Flatten[Position[listoftaxa,elementB]],Flatten[Position[listoftaxa,elementC]],Flatten[Position[listoftaxa,elementD]]}];
+length=Length[listoftaxaWithoutABCD];
+
+For[i=1,i<=length,i++,
+
+(*For each taxon x except the ones in the currently considered quadruple {a,b,c,d}, check if this taxon acts as a fixing taxon for one of the red neighbors of {a,b,c,d} in the colored 3-overlap graph; if so, color this neighbor green and increase the counter by 1 *)
+
+elementX=listoftaxaWithoutABCD[[i]];
+
+
+If[Not[MemberQ[listofgreenquadruples,Sort[{elementB,elementC,elementD,elementX}]]] && MemberQ[listofgreenquadruples,Sort[{elementB,elementC,elementA,elementX}]]&&MemberQ[listofgreenquadruples,Sort[{elementB,elementA,elementD,elementX}]]&&MemberQ[listofgreenquadruples,Sort[{elementA,elementC,elementD,elementX}]],AppendTo[setofNEWgreennodes,Sort[{elementB,elementC,elementD,elementX}]]; AppendTo[listofgreenquadruples,Sort[{elementB,elementC,elementD,elementX}]]; counter++];
+
+
+If[Not[MemberQ[listofgreenquadruples,Sort[{elementA,elementC,elementD,elementX}]]] && MemberQ[listofgreenquadruples,Sort[{elementB,elementC,elementA,elementX}]]&&MemberQ[listofgreenquadruples,Sort[{elementB,elementA,elementD,elementX}]]&&MemberQ[listofgreenquadruples,Sort[{elementB,elementC,elementD,elementX}]],AppendTo[setofNEWgreennodes,Sort[{elementA,elementC,elementD,elementX}]]; AppendTo[listofgreenquadruples,Sort[{elementA,elementC,elementD,elementX}]]; counter++];
+
+If[Not[MemberQ[listofgreenquadruples,Sort[{elementA,elementB,elementD,elementX}]]] && MemberQ[listofgreenquadruples,Sort[{elementB,elementC,elementA,elementX}]]&&MemberQ[listofgreenquadruples,Sort[{elementC,elementA,elementD,elementX}]]&&MemberQ[listofgreenquadruples,Sort[{elementB,elementC,elementD,elementX}]],AppendTo[setofNEWgreennodes,Sort[{elementA,elementB,elementD,elementX}]]; AppendTo[listofgreenquadruples,Sort[{elementA,elementB,elementD,elementX}]]; counter++];
+
+
+If[Not[MemberQ[listofgreenquadruples,Sort[{elementA,elementB,elementC,elementX}]]] && MemberQ[listofgreenquadruples,Sort[{elementB,elementD,elementA,elementX}]]&&MemberQ[listofgreenquadruples,Sort[{elementC,elementA,elementD,elementX}]]&&MemberQ[listofgreenquadruples,Sort[{elementB,elementC,elementD,elementX}]],AppendTo[setofNEWgreennodes,Sort[{elementA,elementC,elementB,elementX}]]; AppendTo[listofgreenquadruples,Sort[{elementA,elementC,elementB,elementX}]]; counter++];
+
+];
+
+setofNEWgreennodes=Delete[setofNEWgreennodes,1];
+];
+
+];
+
+quaddec=0;
+If[goon==1&&counter==Length[possiblequadruples],quaddec=1];
+
+If[quaddec==1,Input["Your set of taxon sets is phylogenetically decisive - both in the rooted and unrooted sense! Press ok to finish this program."],If[goon==1,Input["Your set of taxon sets is phylogenetically decisive - but only in the rooted sense. Press ok to finish this program."], Input["Your set of taxon sets is NOT phylogenetically decisive. Press ok to finish this program."];];];
+
+
