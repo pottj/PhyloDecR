@@ -11,14 +11,15 @@ decisiveness in R.
 
 ## Installation
 
-You can install the released version of PhyloDecR from
+Once published, you can install the released version of PhyloDecR from
 [CRAN](https://CRAN.R-project.org) with:
 
 ``` r
 install.packages("PhyloDecR")
 ```
 
-And the development version from [GitHub](https://github.com/) with:
+Currently, only the development version from
+[GitHub](https://github.com/) is available with:
 
 ``` r
 # install.packages("devtools")
