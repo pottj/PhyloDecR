@@ -2,21 +2,23 @@
 % Please edit documentation in R/runAlgorithm.R
 \name{runAlgorithm}
 \alias{runAlgorithm}
-\title{FUNCTION_TITLE}
+\title{Running algorithm to find fixing taxa in a loop}
 \usage{
-runAlgorithm(data)
+runAlgorithm(data, verbose = F)
 }
 \arguments{
-\item{data}{PARAM_DESCRIPTION}
+\item{data}{Data.table as constructed by create input. All possible quadruples given the taxon set with status information (quadruple as input available, quadruple not in input = unresolved). In addition, all four triples possible by each quadruple are listed.}
+
+\item{verbose}{Logical parameter if message should be printed; default F}
 }
 \value{
-OUTPUT_DESCRIPTION
+The same data.table is returned, with updated status, fixing taxon & round of resolvement.
 }
 \description{
-FUNCTION_DESCRIPTION
+Testing the input data stepwise for fixing taxa and check if the whole set can be resolved or not
 }
 \details{
-DETAILS
+Details to the algorithm can be found in the paper LINK
 }
 \examples{
 \dontrun{

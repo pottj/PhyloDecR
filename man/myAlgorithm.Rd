@@ -2,21 +2,23 @@
 % Please edit documentation in R/myAlgorithm.R
 \name{myAlgorithm}
 \alias{myAlgorithm}
-\title{FUNCTION_TITLE}
+\title{Algorithm to find fixing taxa}
 \usage{
-myAlgorithm(c)
+myAlgorithm(data, verbose = F)
 }
 \arguments{
-\item{c}{PARAM_DESCRIPTION}
+\item{data}{Data.table as constructed by create input + count and fixing taxon. All possible quadruples given the taxon set with status information (quadruple as input available, quadruple not in input = unresolved, quadruples already solved = resolved). In addition, all four triples possible by each quadruple are listed. For resolved quadruples, used fixing taxon and round of resolvement is listed.}
+
+\item{verbose}{Logical parameter if message should be printed; default F}
 }
 \value{
-OUTPUT_DESCRIPTION
+The same data.table is returned, with updated status, fixing taxon & round
 }
 \description{
-FUNCTION_DESCRIPTION
+Split data to input and unresolved quadruples and try for each unresolved one if a fixing taxon can be found.
 }
 \details{
-DETAILS
+Details to the algorithm can be found in the paper LINK
 }
 \examples{
 \dontrun{
