@@ -1,6 +1,7 @@
 #' @title Algorithm to find fixing taxa
 #' @description Split data to input and unresolved quadruples and try for each unresolved one if a fixing taxon can be found.
 #' @param data Data.table as constructed by create input + count and fixing taxon. All possible quadruples given the taxon set with status information (quadruple as input available, quadruple not in input = unresolved, quadruples already solved = resolved). In addition, all four triples possible by each quadruple are listed. For resolved quadruples, used fixing taxon and round of resolvement is listed.
+#' @param roundnumber Indexnumber for round
 #' @param verbose Logical parameter if message should be printed; default F
 #' @return The same data.table is returned, with updated status, fixing taxon & round
 #' @details Details to the algorithm can be found in the paper LINK
@@ -15,8 +16,9 @@
 #' @importFrom foreach foreach
 #' @importFrom foreach "%do%"
 #' @importFrom data.table ":="
-myAlgorithm<-function(data,verbose = F){
+myAlgorithm<-function(data,roundnumber,verbose = F){
   # data = data2
+  # roundnumber = index
 
   # Step 0: check if input is ok
   expectedNames = c("taxa1","taxa2","taxa3","taxa4","quadruple",
@@ -82,7 +84,7 @@ myAlgorithm<-function(data,verbose = F){
   filt = myTab$count>=4
   data_unresolved[filt,status := "resolved"]
   data_unresolved[filt,fixingTaxa := myTab[filt,best_fixTaxa]]
-  data_unresolved[filt,round := round + 1]
+  data_unresolved[filt,round := roundnumber + 1]
   data_unresolved
 
   # Step 4: return data

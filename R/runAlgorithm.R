@@ -44,7 +44,9 @@ runAlgorithm<-function(data, verbose = F){
   data2[,round := 0]
   data2[,fixingTaxa := 0]
   repeat{
-    data2=myAlgorithm(data2, verbose = verbose)
+    data2=myAlgorithm(data = data2,
+                      roundnumber = index,
+                      verbose = verbose)
     index=index+1
     data2
 
