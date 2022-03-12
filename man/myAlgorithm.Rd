@@ -4,10 +4,12 @@
 \alias{myAlgorithm}
 \title{Algorithm to find fixing taxa}
 \usage{
-myAlgorithm(data, verbose = F)
+myAlgorithm(data, roundnumber, verbose = F)
 }
 \arguments{
 \item{data}{Data.table as constructed by create input + count and fixing taxon. All possible quadruples given the taxon set with status information (quadruple as input available, quadruple not in input = unresolved, quadruples already solved = resolved). In addition, all four triples possible by each quadruple are listed. For resolved quadruples, used fixing taxon and round of resolvement is listed.}
+
+\item{roundnumber}{Indexnumber for round}
 
 \item{verbose}{Logical parameter if message should be printed; default F}
 }
