@@ -59,11 +59,14 @@ runAlgorithm<-function(data, verbose = F){
   }
 
   # Step 3: return data and result
-  if (sum(data2$status == "unresolved") ==0){
-    print("PHYLOGENETICALLY DECISIVE")
-  }else{
-    print("NOT RESOLVABLE VIA THIS ALGORITHM, MAYBE A SECOND FIXING TAXON IS NEEDED")
+  if(verbose == T){
+    if (sum(data2$status == "unresolved") ==0){
+      print("PHYLOGENETICALLY DECISIVE")
+    }else{
+      print("NOT RESOLVABLE VIA THIS ALGORITHM, MAYBE A SECOND FIXING TAXON IS NEEDED")
     }
+  }
+
 
   return(data2)
 

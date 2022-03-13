@@ -1,6 +1,7 @@
 #' @title Perform some initial checks
 #' @description Three checks, according to my master thesis
 #' @param data Input data created by createInput()
+#' @param verbose Logical parameter if message should be printed; default F
 #' @return Results of the three checks (OK or not OK)
 #' @details See master thesis, Lemma 1, Theorem 5 & 6
 #' @examples
@@ -14,7 +15,7 @@
 #' @rdname initialCheck
 #' @export
 #' @importFrom data.table as.data.table
-initialCheck = function(data){
+initialCheck = function(data, verbose = F){
   # data = myResults$data
 
   # Step 0: check if data is in the right format (created by createInput())
@@ -36,7 +37,7 @@ initialCheck = function(data){
   if (input_length < choose(n-1,3)){
     comment1 = "CHECK 1 NOT OK - NOT RESOLVABLE VIA THIS ALGORITHM"
   }else{comment1 = "CHECK 1 OK - input is not too small ..."}
-  print(comment1)
+  if(verbose == T) print(comment1)
 
   # Check 2: Triple coverage (see master thesis, Lemma 1)
   all_triple_taxa<-t(combn(n,3))
@@ -54,7 +55,7 @@ initialCheck = function(data){
   if(end_check2<0){
     comment2 ="CHECK 2 NOT OK - NOT PHYLOGENETICALLY DECISIVE"
   }else{comment2 = "CHECK 2 OK - all triples are at least one time there"}
-  print(comment2)
+  if(verbose == T) print(comment2)
 
   # Check 3: Tuple coverage (see master thesis, Theorem 6)
   all_tuple_taxa<-t(combn(n,2))
@@ -76,7 +77,7 @@ initialCheck = function(data){
   if (end_check2>0){
     comment3 = "CHECK 3 NOT OK - NOT PHYLOGENETICALLY DECISIVE"
   }else{comment3 = "CHECK 3 OK - all tuples are often enough available"}
-  print(comment3)
+  if(verbose == T) print(comment3)
 
   return(c(comment1,comment2,comment3))
 }
