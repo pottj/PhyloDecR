@@ -3,6 +3,7 @@
 # PhyloDecR 0.0.0.9007
 
 * Fixing incorrect round counter in *myAlgorithm.R*
+* Update verbose parameter in *initialCheck.R* and *runAlgorithm.R*
 
 # PhyloDecR 0.0.0.9006
 
