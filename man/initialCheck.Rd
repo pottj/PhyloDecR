@@ -4,10 +4,12 @@
 \alias{initialCheck}
 \title{Perform some initial checks}
 \usage{
-initialCheck(data)
+initialCheck(data, verbose = F)
 }
 \arguments{
 \item{data}{Input data created by createInput()}
+
+\item{verbose}{Logical parameter if message should be printed; default F}
 }
 \value{
 Results of the three checks (OK or not OK)
