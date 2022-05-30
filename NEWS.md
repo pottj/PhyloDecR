@@ -1,4 +1,4 @@
-# PhyloDecR (development version)
+# PhyloDecR 0.0.1
 
 # PhyloDecR 0.0.0.9007
 
