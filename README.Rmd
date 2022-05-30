@@ -24,50 +24,58 @@ The goal of PhyloDecR is to check sets of taxon sets for phylogenetic decisivene
 
 Once published, you can install the released version of PhyloDecR from [CRAN](https://CRAN.R-project.org) with:
 
-``` r
+```{r, echo=T,eval=FALSE}
 install.packages("PhyloDecR")
 ```
 
 Currently, only the development version from [GitHub](https://github.com/) is available with:
 
-``` r
+```{r, echo=T,eval=FALSE}
 # install.packages("devtools")
-devtools::install_github("pottNeJa/PhyloDecR")
+devtools::install_github("pottj/PhyloDecR")
 ```
+
 ## To do
 
 * Discuss with Mareike: is my version of her algorithm correct? 
 * Check master thesis for further conditions
 
-## Example
+## Minimal example
 
-This is a basic example which shows you how to solve a common problem:
+Here are three basic examples for the algorithms in this package:
 
-```{r example}
+1) FixingTaxonTraceability (original algorithm of Mareike Fischer, focusing on _green_ quadruples)
+2) myAlgorithm (does the same as FixingTaxonTraceability, but focuses on _red_ quadruples --> bit faster)
+3) findNRC (find no-rainbow 4-coloring, exact algorithm, taken adapted from Ghazaleh Parvinis work)
+
+### Loading example data
+
+Here, I use three data sets with $n=6$ taxa, but different input quadruple numbers. 
+
+* The first set contains 8 of 15 possible quadruples --> not decisive
+* the second set contains 9 quadruples --> decisive, but fixing taxon traceable
+* the third set contains 11 quadruples --> decisive and fixing taxon traceable
+
+```{r example load}
 library(PhyloDecR)
 
 ## basic example data sets
 fn1 = system.file("extdata", 
-                  "example_1_notDecisive.txt", 
+                  "example_5_notDecisive.txt", 
                   package = "PhyloDecR")
 fn2 = system.file("extdata", 
-                  "example_2_Decisive.txt", 
+                  "example_4_Decisive_notFTT.txt", 
                   package = "PhyloDecR")
 fn3 = system.file("extdata", 
-                  "example_3_Decisive.txt", 
+                  "example_2_Decisive.txt", 
                   package = "PhyloDecR")
 
+# load input 
+test1 = createInput(fn=fn1,sepSym = "_")
+test2 = createInput(fn=fn2,sepSym = "_")
+test3 = createInput(fn=fn3, sepSym = ",")
 
-
-```
-
-### Step 1: Create Input
-
-```{r step1}
-test1 = createInput(fn=fn1,sepSym = ",")
-test2 = createInput(fn=fn2,sepSym = ",")
-test3 = createInput(fn=fn3, sepSym = "_")
-
+# check input 
 knitr::kable(test1$input_raw,caption = "Input from text file. Does not need to be numeric, does not need to be quadruples")
 
 knitr::kable(test1$input_quadruples,caption = "Input quadruples. If in input was a tree with more than four taxa, all quadruples in that tree are added here")
@@ -79,35 +87,85 @@ knitr::kable(test1$taxa, caption = "Transfomation matrix")
 head(test1$data)
 ```
 
-### Step 2: Do some initial tests
-The second input, *test2*, contains data for 11 taxa lists of 6 different taxa. 
+The input data are lists containing five elements each:
 
-First, we want to check if this input data is okay for the algorithm. There are three conditions (proof see master thesis):
+* raw input: data as given in the txt file
+* input quadruples: input data transformed into quadruples only (in case a bigger tree was given as input)
+* input ordered: data transformed to quadruples, and taxa ID forced to numeric and ordered hierarchically
+* data: all possible quadruples given the taxon set with status information (quadruple as input available, quadruple not in input = unresolved). In addition, all four triples possible by each quadruple are listed
+* taxa: data table used for transformation, taxaID denotes the original input taxaID (as in input_raw & input_quadruples), NR is the ordered number of this taxon (as in input_ordered & data)
+
+### Some initial tests
+
+In my master thesis, and hopefully in our paper, we show some lower bound for fixing taxon tracability. 
 
 1) Input Quadruple size has to be large enough ($n-1 \choose 3$)to make this algorithm work. See Theorem 5 / Conjecture of master thesis
 2) All triples must to be in the input data! See Lemma 1 of master thesis.
 3) All tuples must be sufficiently available! --> See Theorem 6 of master thesis.
 
 ```{r checkInput}
-test1_checks = initialCheck(data = test1$data)
-test2_checks = initialCheck(data = test2$data)
-test3_checks = initialCheck(data = test3$data)
+initialCheck(data = test1$data)
+initialCheck(data = test2$data)
+initialCheck(data = test3$data)
 
 ```
 
 Not all data pass the test. 
 
-* Data 1: low quadruple number & not all tuples sufficiently available --> Algorithm will not be able to give a positive result
-* Data 2: all initial checks passed --> algorithm should be able to give true positive or true negative result
-* Data 3: low quadruple number --> algorithm will not be able to give a positive result
+* Data set 1: low quadruple number & not all tuples sufficiently available --> Algorithm will not be able to give a positive result
+* Data set 2: low quadruple number --> algorithm will not be able to give a positive result
+* Data set 3: all initial checks passed --> algorithm should be able to give true positive or true negative result
 
-```{r algorithm, warning=F}
-test1_alg<-runAlgorithm(data = test1$data,verbose = T)
-test2_alg<-runAlgorithm(data = test2$data,verbose = T)
-test3_alg<-runAlgorithm(data = test3$data,verbose = T)
+### Testing the sets
+
+```{r example test}
+# 1) Using Mareike Fischers version of the FTT Algorithm
+time1 = Sys.time()
+test1_1 = FixingTaxonTraceability(data = test1$data,verbose=T)
+test2_1 = FixingTaxonTraceability(data = test2$data,verbose=T)
+test3_1 = FixingTaxonTraceability(data = test3$data,verbose=T)
+message("Time for FTT (Fischer) : " ,round(difftime(Sys.time(),time1,units = "sec"),3)," seconds")
+
+# 2) Using my version of the FTT Algorithm
+time1 = Sys.time()
+test1_2 = runAlgorithm(data = test1$data,verbose = T)
+test2_2 = runAlgorithm(data = test2$data,verbose = T)
+test3_2 = runAlgorithm(data = test3$data,verbose = T)
+message("Time for FTT (Pott) : " ,round(difftime(Sys.time(),time1,units = "sec"),3)," seconds")
+
+# 3) using the exact algorithm findNRC
+time1 = Sys.time()
+test1_3 = findNRC(data = test1,verbose = T)
+test2_3 = findNRC(data = test2,verbose = F)
+test3_3 = findNRC(data = test3,verbose = F)
+message("Time for NRC (Parvini) : " ,round(difftime(Sys.time(),time1,units = "sec"),3)," seconds")
 ```
 
-The algorithm cannot give false positives! If there are fixing taxa to resolve all quadruples, the set is phylogenetic decisive (proof of proposition 7 of Fischer Preprint).
+### Checking the output
 
-The algorithm can give false negatives! For example, the third example set is phylogenetic decisive, but has not enough quadruples in the set to enable the algorithm to find fixing taxa (see master thesis, theorem 2).
+```{r}
+# 1) Using Mareike Fischers version of the FTT Algorithm
+knitr::kable(test1_1[11:15,])
+knitr::kable(test3_1[11:15,])
+
+# 2) Using my version of the FTT Algorithm
+knitr::kable(test1_2[11:15,])
+knitr::kable(test3_2[11:15,])
+
+# 3) using the exact algorithm findNRC
+test1_3
+test3_3
+
+```
+
+**Interpretation**
+
+In both FTT algorithms, the output is a data table containing all possible quadruples with a status entry (input, solved, unresolved) and the used fixing taxon. The round number is slightly different: in my algorithm, the round indicates the number of times a started the foreach loop, in Mareikes algorithm its the combination of the for loop and the tested taxa (all taxa are tested in a certain order). 
+
+The output of the findNRC algorithm is a list of the last round. In case of a break its the first NRC coloring found, otherwise its the last RC coloring. The first element is the coloring by taxa, the second element the colored quadruples and the last the result (_fail_: no NRC, _NRC_: NRC found). 
+
+
+The FTT algorithm cannot give false positives! If there are fixing taxa to resolve all quadruples, the set is phylogenetic decisive (proof of proposition 7 of Fischer Preprint).
+
+The FTT algorithm can give false negatives! For example, the second example set is phylogenetic decisive, but has not enough quadruples in the set to enable the algorithm to find fixing taxa (see master thesis, theorem 2).
 
