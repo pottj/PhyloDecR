@@ -27,7 +27,7 @@ findNRC<-function(data, verbose = F){
   myI = floor(n/4)
   dat1[,color := "nocol"]
 
-  inp2 = colorQuadFunc(input = inp1,colors = dat1)
+  inp2 = findNRC_helpeR_colorQuadFunc(input = inp1,colors = dat1)
 
   counter = 0
 
@@ -68,18 +68,18 @@ findNRC<-function(data, verbose = F){
 
           # coloring quadruples
           if(verbose==T) message("Testing i=",i,", k=",k,", j=",j,", and l=",l," ...")
-          inp3 = colorQuadFunc(input = inp2,colors = dat3)
+          inp3 = findNRC_helpeR_colorQuadFunc(input = inp2,colors = dat3)
 
           if(max(inp3$sumColored)<2){
             x4 = x3[1]
             x5 = x3[!is.element(x3,x4)]
             dat3[NR==x4, color := "blue"]
             dat3[NR %in% x5, color := "yellow"]
-            inp3 = colorQuadFunc(input = inp2,colors = dat3)
+            inp3 = findNRC_helpeR_colorQuadFunc(input = inp2,colors = dat3)
             myRes = list(coloring = dat3,
                          quadruples_colored = inp3,
                          result = "NRC")
-            print(myRes$result)
+            #print(myRes$result)
 
           }else{
             inp4 = data.table::copy(inp3)
@@ -90,7 +90,7 @@ findNRC<-function(data, verbose = F){
 
             x4 = inp4[1,myFilt,with=F]
             dat3[NR %in% x4, color := "blue"]
-            inp3 = colorQuadFunc(input = inp3,colors = dat3)
+            inp3 = findNRC_helpeR_colorQuadFunc(input = inp3,colors = dat3)
 
             filt = inp3$sumUniqueColors==3 & inp3$sumColored==3
             filt2 = sum(filt)
@@ -103,7 +103,7 @@ findNRC<-function(data, verbose = F){
 
               x4 = inp4[1,myFilt,with=F]
               dat3[NR %in% x4, color := "blue"]
-              inp3 = colorQuadFunc(input = inp3,colors = dat3)
+              inp3 = findNRC_helpeR_colorQuadFunc(input = inp3,colors = dat3)
 
               filt = inp3$sumUniqueColors==3 & inp3$sumColored==3
               filt2 = sum(filt)
@@ -113,22 +113,22 @@ findNRC<-function(data, verbose = F){
               myRes = list(coloring = dat3,
                            quadruples_colored = inp3,
                            result = "fail")
-              print(myRes$result)
+              #print(myRes$result)
             }else{
               dat3[color == "nocol", color := "yellow"]
-              inp3 = colorQuadFunc(input = inp3,colors = dat3)
+              inp3 = findNRC_helpeR_colorQuadFunc(input = inp3,colors = dat3)
               myRes = list(coloring = dat3,
                            quadruples_colored = inp3,
                            result = "NRC")
-              print(myRes$result)
+              #print(myRes$result)
             }
 
           }
           if(i==1 & k==1 & j==1 & l==1) counter = counter +1
           if(verbose==T) message("        this coloring resulted in: ",myRes$result,"\n        counter at ",counter)
           finalFilt = myRes$result == "fail" & counter<2
-          print(finalFilt)
-          if(finalFilt == TRUE) rm(myRes)
+          #print(finalFilt)
+          #if(finalFilt == TRUE) rm(myRes)
           if(finalFilt == FALSE) break
 
         }
