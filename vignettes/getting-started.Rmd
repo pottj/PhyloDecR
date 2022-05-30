@@ -19,11 +19,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup, echo=FALSE, warning=FALSE, message=FALSE}
-r_on_server = TRUE
-if(r_on_server==T) basicpath = "/net/ifs1/san_projekte/projekte/genstat/"  else basicpath =  "J:/genstat/"
-if(r_on_server==T) .libPaths("/net/ifs1/san_projekte/projekte/genstat/07_programme/rpackages/forostar/") else .libPaths("C:/userprograms/downloaded_Rpackages")
-#.libPaths()
+```{r setup, warning=FALSE, message=FALSE}
 
 library(data.table)
 setDTthreads(1)
