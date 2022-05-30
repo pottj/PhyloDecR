@@ -1,5 +1,5 @@
 #' @title Algorithm to test for fixing taxon traceability
-#' @description Testing the input data stepwise for fixing taxa and check if the whole set can be resolved or not. The algorithm follows strictly the Mathematica template from Mareike Fischer by checking each green quadruple if it can be used to solve a red one. There are two counters: first a simple counter adding up all solved quadruples (green + newGreens). If this reaches the maximal number of quadruples, the while loops stops. Second, I use a count to track the number of while and for loops used. 
+#' @description Testing the input data stepwise for fixing taxa and check if the whole set can be resolved or not. The algorithm follows strictly the Mathematica template from Mareike Fischer by checking each green quadruple if it can be used to solve a red one. There are two counters: first a simple counter adding up all solved quadruples (green + newGreens). If this reaches the maximal number of quadruples, the while loops stops. Second, I use a count to track the number of while and for loops used.
 #' @param data Data.table as constructed by create input. All possible quadruples given the taxon set with status information (quadruple as input available, quadruple not in input = unresolved). In addition, all four triples possible by each quadruple are listed.
 #' @param verbose Logical parameter if message should be printed; default F
 #' @return The same data.table is returned, with updated status, fixing taxon & round of resolvement.
@@ -10,8 +10,13 @@
 #'  #EXAMPLE1
 #'  }
 #' }
-#' @rdname runAlgorithm
+#' @seealso
+#'  \code{\link[data.table]{copy}}
+#'  \code{\link[foreach]{foreach}}
+#' @rdname FixingTaxonTraceability
 #' @export
+#' @importFrom data.table copy
+#' @importFrom foreach foreach
 FixingTaxonTraceability<-function(data, verbose = F){
   # data = test$data
   # verbose = T
